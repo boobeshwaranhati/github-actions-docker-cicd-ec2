@@ -93,27 +93,78 @@ Docker Hub Repository: https://hub.docker.com/r/boobesh2005/github-actions-docke
 
 ### Step 5: Configure AWS EC2
 ---
-Created and configured EC2 instances to host the containerized website.
+Configured AWS EC2 to host the containerized HTML website.
 
 Tested the deployment on the following operating systems:
 
 Amazon Linux 2023
 Ubuntu Server
 
-Configured the EC2 security group to allow the required inbound traffic:
+## AWS IAM Configuration
+| Secret Name             | Purpose                                      |
+| ----------------------- | -------------------------------------------- |
+| `AWS_ACCESS_KEY_ID`     | Authenticates the IAM user with AWS          |
+| `AWS_SECRET_ACCESS_KEY` | Provides the corresponding secret access key |
+| `DOCKERHUB_USERNAME`    | Docker Hub authentication                    |
+| `DOCKERHUB_TOKEN`       | Authenticates Docker Hub image publishing    |
+| `EC2_SSH_KEY`           | Private SSH key for connecting to EC2        |
+---
+The EC2 key pair name mumbai was configured in the workflow for launching the EC2 instance.
 
-Port 22 for SSH access.
-Port 80 for HTTP website access.
+## EC2 Network Configuration
 
-Configured GitHub repository secrets for the EC2 host address and SSH authentication.
+The GitHub Actions workflow automatically discovers the default VPC and subnet, creates a security group, and launches a new EC2 instance.
+
+The security group allows:
+
+Port 22: SSH access for remote deployment.
+Port 80: HTTP access to the website.
+
+The workflow automatically retrieves the public IP address of the newly launched EC2 instance and uses it for deployment and website verification.
+
+Created an AWS IAM user with administrator access for the project setup and automated EC2 provisioning. Generated the IAM user's access keys and stored them as GitHub repository secrets to allow GitHub Actions to authenticate with AWS.
+
+The following GitHub Secrets were configured:
 
 ### Step 6: Configure GitHub Actions
 ---
+# Authentication and Deployment
+
+| Authentication | Purpose |
+|---|---|
+| AWS IAM credentials | Authenticate GitHub Actions with AWS to create EC2 resources automatically. |
+| EC2 SSH private key | Connect to the newly created EC2 instance and deploy the Docker container. |
+| Docker Hub credentials | Authenticate with Docker Hub to publish the Docker image. |
+
+GitHub Actions uses credentials stored in GitHub Secrets to authenticate with AWS and Docker Hub. It automatically creates an EC2 instance, detects its public IP address, connects through SSH, deploys the latest Docker image, and verifies website accessibility through port 80.
+AWS Authentication
+
+GitHub Actions authenticates with AWS using access keys associated with the configured IAM user. The credentials are stored securely in GitHub repository secrets and are not hardcoded in the workflow.
+
+The aws-actions/configure-aws-credentials action configures AWS credentials for subsequent AWS CLI commands.
+
+## Automated EC2 Provisioning
+
+After successfully building and publishing the Docker image, the workflow:
+
+Discovers the default VPC and subnet.
+Creates a security group with the required inbound rules.
+Launches a t3.micro EC2 instance using the configured AMI and key pair.
+Waits for the instance to enter the running state.
+Automatically retrieves the instance's public IP address.
+Waits for SSH connectivity before starting deployment.
+Remote Deployment Using SSH
+
+The appleboy/ssh-action@v1.2.0 action connects to the newly created EC2 instance using its public IP address and the private key stored in EC2_SSH_KEY.
+
+The workflow installs Docker when required, pulls the latest image from Docker Hub, replaces the previous application container, and starts the updated container with port 80 exposed.
+
+Finally, the workflow checks HTTP accessibility to confirm successful deployment.
 Created a GitHub Actions workflow file at:
 
 .github/workflows/docker-cicd.yml
 
-The workflow contains the following stages:
+## The workflow contains the following stages:
 
 1. Checkout Code
 
@@ -216,11 +267,14 @@ Overall Result: All implemented pipeline stages and both EC2 deployment tests co
 
 ## 7. Security Considerations
 
-Stored Docker Hub credentials and EC2 connection details in GitHub repository secrets.
-Used SSH authentication for remote deployment.
-Configured security group rules for the required network traffic.
-Avoided hardcoding sensitive credentials in the workflow file.
-Used an SSH private key supported by the deployment action.
+Stored AWS IAM access keys and Docker Hub credentials in GitHub repository secrets instead of hardcoding them in the workflow.
+Used an IAM user with administrator access for the project's AWS resource provisioning.
+Used SSH key-based authentication for remote EC2 deployment.
+Configured security group rules for SSH and HTTP traffic.
+Used GitHub Actions to automate AWS resource creation and deployment.
+Used the EC2_SSH_KEY secret to authenticate SSH connections without exposing the private key in the repository.
+
+Security improvement: Administrator access grants broad permissions. For a production implementation, replace it with a dedicated IAM policy granting only the permissions required by the workflow. SSH access should also be restricted to trusted source IP addresses rather than opened to the entire internet.
 
 ## 8. Key Learnings
 
