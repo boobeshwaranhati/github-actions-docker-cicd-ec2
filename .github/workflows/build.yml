@@ -41,4 +41,4 @@ jobs:
             sudo systemctl enable --now docker
             sudo docker pull boobesh2005/github-actions-docker-cicd-ec2:latest
             sudo docker rm -f html-website || true
-            sudo docker run -d --name html-website --restart unless-stopped -p 90:80 boobesh2005/github-actions-docker-cicd-ec2:latest
+            sudo docker run -d --name html-website --restart unless-stopped -p 80:80 boobesh2005/github-actions-docker-cicd-ec2:latest
