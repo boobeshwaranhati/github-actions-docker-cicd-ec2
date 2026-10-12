@@ -41,45 +41,9 @@ The pipeline was successfully tested on both Amazon Linux 2023 and Ubuntu EC2 in
 
 ## 4. Project Architecture
 
-The CI/CD pipeline follows this workflow:
+The following diagram illustrates the complete CI/CD workflow, from pushing code to GitHub to deploying the Docker container on AWS EC2.
 
-Developer Updates Code
-        |
-        v
-Push Code to GitHub
-        |
-        v
-GitHub Actions Workflow Starts
-        |
-        v
-Checkout Source Code
-        |
-        v
-Validate Website Files
-        |
-        v
-Login to Docker Hub
-        |
-        v
-Build Docker Image
-        |
-        v
-Push Image to Docker Hub
-        |
-        v
-Connect to AWS EC2 Using SSH
-        |
-        v
-Pull Latest Docker Image
-        |
-        v
-Remove Previous Application Container
-        |
-        v
-Start New Docker Container
-        |
-        v
-Access Website Through Port 80
+![Automated Docker CI/CD Pipeline Architecture](Automated%20Docker%20CI_CD%20Pipeline%20Architecture.png)
 
 ## 5. Implementation Steps
 
@@ -241,6 +205,12 @@ Confirmed that the website was accessible after deployment on both Amazon Linux 
 | Deploy on Ubuntu                  | Container starts successfully              | Passed        |
 | Verify container status           | Container is running                       | Passed        |
 | Verify website access             | Website is accessible through HTTP port 80 | Passed        |
+
+### Build Status
+
+The following image shows the build status of the GitHub Actions CI/CD pipeline.
+
+![GitHub Actions Build Status](Build%20Status.png)
 
 Overall Result: All implemented pipeline stages and both EC2 deployment tests completed successfully.
 
