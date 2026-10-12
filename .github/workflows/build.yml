@@ -14,14 +14,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Login to Docker Hub
+      # 2. Validate the website files
+      - name: Validate Website
+        run: |
+          test -f index.html
+          test -f Dockerfile
+          grep -qi "<html" index.html
+          echo "Website validation successful!"
+
+      # 3. Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3. Build and push the image
+      # 4. Build and push the image
       - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
@@ -29,7 +37,7 @@ jobs:
           push: true
           tags: boobesh2005/github-actions-docker-cicd-ec2:latest
 
-      # 4. Deploy to EC2
+      # 5. Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
