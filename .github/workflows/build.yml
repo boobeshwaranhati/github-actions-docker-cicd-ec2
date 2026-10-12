@@ -1,3 +1,4 @@
+
 name: Docker CI/CD Pipeline
 
 on:
@@ -10,34 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Get the source code
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Validate the website files
+
       - name: Validate Website
         run: |
           test -f index.html
           test -f Dockerfile
           grep -qi "<html" index.html
-          echo "Website validation successful!"
+          echo "Validation successful!"
 
-      # 3. Login to Docker Hub
+
+      - name: Build Docker Image
+        run: |
+          docker build -t boobesh2005/github-actions-docker-cicd-ec2:latest .
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 4. Build and push the image
-      - name: Build and Push Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: boobesh2005/github-actions-docker-cicd-ec2:latest
+ 
+      - name: Push Docker Image
+        run: |
+          docker push boobesh2005/github-actions-docker-cicd-ec2:latest
 
-      # 5. Deploy to EC2
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -45,8 +47,27 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo yum install docker -y
             sudo systemctl enable --now docker
+
             sudo docker pull boobesh2005/github-actions-docker-cicd-ec2:latest
+
             sudo docker rm -f html-website || true
-            sudo docker run -d --name html-website --restart unless-stopped -p 80:80 boobesh2005/github-actions-docker-cicd-ec2:latest
+
+            sudo docker run -d \
+              --name html-website \
+              --restart unless-stopped \
+              -p 80:80 \
+              boobesh2005/github-actions-docker-cicd-ec2:latest
+
+      - name: Verify Website
+        run: |
+          for i in {1..12}; do
+            if curl -fsS "http://${{ secrets.EC2_HOST }}/" > /dev/null; then
+              echo "Website is accessible!"
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "Website verification failed!"
+          exit 1
