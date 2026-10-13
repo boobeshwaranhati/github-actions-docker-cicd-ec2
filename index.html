@@ -1,397 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b1020">
-  <title>CloudForge | Build. Ship. Scale.</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2f3b2f" />
+  <title>Little Fern Café | Coffee, Comfort & Good Company</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #111a2e;
-      --panel2: #17223a;
-      --text: #f5f7ff;
-      --muted: #a7b2ca;
-      --line: rgba(255,255,255,.12);
-      --accent: #72f1d1;
-      --accent2: #8aa7ff;
-      --pink: #f4a4ff;
-      --radius: 22px;
-      --shadow: 0 22px 60px rgba(0,0,0,.28);
+      --forest: #2f3b2f;
+      --cream: #f7f2e8;
+      --sand: #e7dcc9;
+      --terracotta: #bd6b4b;
+      --ink: #262a24;
+      --muted: #6d7167;
+      --white: #fffdf8;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: "Segoe UI", Arial, sans-serif;
       line-height: 1.6;
     }
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; }
-    img { display: block; max-width: 100%; }
-    .wrap { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
     .topbar {
-      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(18px);
-      background: rgba(11,16,32,.82); border-bottom: 1px solid var(--line);
+      background: var(--forest);
+      color: #f9f4e9;
+      text-align: center;
+      padding: 8px 16px;
+      font-size: .82rem;
+      letter-spacing: .08em;
     }
-    .nav { display:flex; align-items:center; justify-content:space-between; min-height:76px; gap:24px; }
-    .brand { display:flex; align-items:center; gap:11px; font-weight:850; letter-spacing:-.04em; font-size:1.22rem; }
-    .brand-mark { width:37px; height:37px; border-radius:12px; display:grid; place-items:center; color:#08121c; background:linear-gradient(135deg,var(--accent),var(--accent2)); font-weight:950; }
-    .nav-links { display:flex; align-items:center; gap:25px; color:var(--muted); font-size:.94rem; }
-    .nav-links a:hover { color:var(--text); }
-    .nav-actions { display:flex; align-items:center; gap:10px; }
-    .btn { border:1px solid var(--line); border-radius:999px; padding:11px 17px; color:var(--text); background:transparent; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px; transition:transform .2s, border-color .2s, background .2s; }
-    .btn:hover { transform:translateY(-2px); border-color:rgba(114,241,209,.7); }
-    .btn.primary { background:var(--accent); color:#07151a; border-color:var(--accent); font-weight:800; }
-    .menu-toggle { display:none; }
-    .hero { padding:78px 0 65px; overflow:hidden; }
-    .hero-grid { display:grid; grid-template-columns:1.02fr .98fr; gap:50px; align-items:center; }
-    .eyebrow { display:inline-flex; align-items:center; gap:9px; border:1px solid rgba(114,241,209,.28); background:rgba(114,241,209,.08); color:var(--accent); border-radius:999px; padding:7px 12px; font-size:.82rem; font-weight:750; letter-spacing:.04em; }
-    .pulse { width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 5px rgba(114,241,209,.12); }
-    h1 { font-size:clamp(2.8rem, 6vw, 5.2rem); line-height:.99; letter-spacing:-.065em; margin:23px 0 23px; }
-    .gradient { background:linear-gradient(100deg,var(--accent),var(--accent2) 56%,var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .hero-copy { color:var(--muted); font-size:1.1rem; max-width:560px; }
-    .hero-buttons { display:flex; gap:12px; flex-wrap:wrap; margin:28px 0 28px; }
-    .proof { display:flex; align-items:center; gap:13px; color:var(--muted); font-size:.9rem; }
-    .avatars { display:flex; padding-left:4px; }
-    .avatars img { width:33px; height:33px; object-fit:cover; border:2px solid var(--bg); border-radius:50%; margin-left:-5px; }
-    .hero-visual { position:relative; min-height:460px; }
-    .hero-photo { position:absolute; inset:15px 15px 42px 35px; overflow:hidden; border-radius:30px; border:1px solid var(--line); box-shadow:var(--shadow); }
-    .hero-photo img { width:100%; height:100%; object-fit:cover; filter:saturate(.85); }
-    .hero-photo:after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,16,32,.02),rgba(11,16,32,.55)); }
-    .floating-card { position:absolute; z-index:2; background:rgba(17,26,46,.93); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px); }
-    .pipeline-card { top:0; left:0; width:205px; }
-    .pipeline-title { color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; }
-    .pipeline-status { display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-weight:800; }
-    .success { color:var(--accent); font-size:.82rem; }
-    .pipeline-line { height:5px; border-radius:9px; background:#26334e; margin-top:12px; overflow:hidden; }
-    .pipeline-line span { display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
-    .metric-card { right:0; bottom:0; width:205px; }
-    .metric-big { font-size:2rem; font-weight:900; letter-spacing:-.05em; }
-    .metric-caption { color:var(--muted); font-size:.82rem; }
-    .mini-bars { display:flex; align-items:end; gap:5px; height:35px; margin-top:10px; }
-    .mini-bars span { flex:1; border-radius:4px 4px 1px 1px; background:linear-gradient(180deg,var(--accent),var(--accent2)); }
-    .trust { border-block:1px solid var(--line); padding:24px 0; }
-    .trust-row { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
-    .trust-label { color:var(--muted); font-size:.82rem; text-transform:uppercase; letter-spacing:.12em; }
-    .tool-logos { display:flex; align-items:center; justify-content:space-between; flex:1; gap:25px; color:#d6dced; font-weight:800; font-size:1rem; flex-wrap:wrap; }
-    .tool-logos span { opacity:.8; }
-    section { padding:86px 0; }
-    .section-head { display:flex; justify-content:space-between; align-items:end; gap:25px; margin-bottom:30px; }
-    .kicker { color:var(--accent); text-transform:uppercase; letter-spacing:.13em; font-size:.78rem; font-weight:850; }
-    h2 { font-size:clamp(2rem,4vw,3.3rem); line-height:1.05; letter-spacing:-.05em; margin:10px 0 0; }
-    .section-head p { color:var(--muted); max-width:420px; margin:0; }
-    .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-    .feature { border:1px solid var(--line); border-radius:var(--radius); padding:24px; background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015)); }
-    .feature-icon { width:47px; height:47px; display:grid; place-items:center; border-radius:15px; font-size:1.35rem; background:rgba(114,241,209,.1); margin-bottom:18px; }
-    .feature h3 { margin:0 0 8px; font-size:1.12rem; }
-    .feature p { color:var(--muted); margin:0; font-size:.94rem; }
-    .gallery-section { background:linear-gradient(180deg,transparent,rgba(138,167,255,.055),transparent); }
-    .filters { display:flex; gap:9px; flex-wrap:wrap; margin:0 0 23px; }
-    .filter { padding:9px 15px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:transparent; cursor:pointer; }
-    .filter.active,.filter:hover { background:var(--accent); color:#07151a; border-color:var(--accent); font-weight:800; }
-    .gallery { display:grid; grid-template-columns:repeat(12,1fr); gap:15px; }
-    .photo-card { position:relative; min-height:210px; overflow:hidden; border-radius:19px; border:1px solid var(--line); background:var(--panel); grid-column:span 4; }
-    .photo-card.wide { grid-column:span 8; }
-    .photo-card img { width:100%; height:100%; min-height:210px; object-fit:cover; transition:transform .5s; }
-    .photo-card:hover img { transform:scale(1.06); }
-    .photo-card:after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 35%,rgba(5,9,18,.86)); pointer-events:none; }
-    .photo-caption { position:absolute; left:18px; right:18px; bottom:15px; z-index:1; }
-    .photo-caption strong { display:block; font-size:1.02rem; }
-    .photo-caption span { color:#d0d7e8; font-size:.82rem; }
-    .photo-card.hidden { display:none; }
-    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:24px; }
-    .stat { padding:22px; border-radius:18px; background:var(--panel); border:1px solid var(--line); }
-    .stat strong { display:block; font-size:2rem; letter-spacing:-.06em; }
-    .stat span { color:var(--muted); font-size:.88rem; }
-    .steps-grid { display:grid; grid-template-columns:.8fr 1.2fr; gap:40px; align-items:start; }
-    .steps-intro { position:sticky; top:110px; }
-    .steps-intro p { color:var(--muted); }
-    .steps { display:grid; gap:13px; }
-    .step { display:grid; grid-template-columns:48px 1fr; gap:16px; padding:20px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.025); }
-    .step-num { width:44px; height:44px; display:grid; place-items:center; border-radius:14px; color:#07151a; background:var(--accent); font-weight:900; }
-    .step h3 { margin:0 0 5px; }
-    .step p { margin:0; color:var(--muted); font-size:.93rem; }
-    .cta { padding:0 0 88px; }
-    .cta-box { position:relative; overflow:hidden; border-radius:28px; padding:46px; border:1px solid rgba(114,241,209,.28); background:linear-gradient(120deg,rgba(114,241,209,.12),rgba(138,167,255,.13)),var(--panel); display:flex; align-items:center; justify-content:space-between; gap:30px; }
-    .cta-box:after { content:""; position:absolute; width:260px; height:260px; border-radius:50%; border:1px solid rgba(255,255,255,.1); right:14%; top:-150px; box-shadow:0 0 0 30px rgba(255,255,255,.025),0 0 0 60px rgba(255,255,255,.02); }
-    .cta-box h2 { max-width:600px; }
-    .cta-box p { color:var(--muted); margin-bottom:0; }
-    footer { border-top:1px solid var(--line); padding:25px 0; color:var(--muted); font-size:.87rem; }
-    .footer-row { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
-    .to-top { border:1px solid var(--line); border-radius:50%; width:42px; height:42px; display:grid; place-items:center; color:var(--text); background:var(--panel); cursor:pointer; }
-    .toast { position:fixed; bottom:22px; right:22px; z-index:30; max-width:calc(100% - 44px); padding:13px 17px; border-radius:14px; background:var(--accent); color:#07151a; font-weight:750; box-shadow:var(--shadow); opacity:0; transform:translateY(12px); pointer-events:none; transition:.25s; }
-    .toast.show { opacity:1; transform:translateY(0); }
-    @media (max-width: 900px) {
-      .hero-grid { grid-template-columns:1fr; gap:30px; }
-      .hero-visual { min-height:390px; }
-      .feature-grid { grid-template-columns:repeat(2,1fr); }
-      .steps-grid { grid-template-columns:1fr; }
-      .steps-intro { position:static; }
-      .stats { grid-template-columns:repeat(2,1fr); }
-      .photo-card,.photo-card.wide { grid-column:span 6; }
-      .nav-links { gap:15px; }
+    header {
+      max-width: 1180px;
+      margin: auto;
+      padding: 20px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
-    @media (max-width: 650px) {
-      .wrap { width:min(100% - 28px,1160px); }
-      .nav { min-height:66px; }
-      .menu-toggle { display:inline-flex; padding:9px 12px; }
-      .nav-links { display:none; position:absolute; top:66px; left:0; right:0; padding:18px 22px; background:#0e1528; border-bottom:1px solid var(--line); flex-direction:column; align-items:flex-start; }
-      .nav-links.open { display:flex; }
-      .nav-actions .nav-cta { display:none; }
-      .hero { padding:55px 0 45px; }
-      .hero-visual { min-height:320px; }
-      .hero-photo { inset:15px 8px 35px 20px; }
-      .pipeline-card { width:170px; padding:12px; }
-      .metric-card { width:170px; padding:12px; }
-      section { padding:62px 0; }
-      .section-head { display:block; }
-      .section-head p { margin-top:15px; }
-      .feature-grid { grid-template-columns:1fr; }
-      .photo-card,.photo-card.wide { grid-column:span 12; min-height:220px; }
-      .photo-card img { min-height:220px; }
-      .stats { grid-template-columns:repeat(2,1fr); }
-      .stat { padding:16px; }
-      .stat strong { font-size:1.65rem; }
-      .cta-box { padding:28px; display:block; }
-      .cta-box .btn { margin-top:20px; }
-      .proof { align-items:flex-start; }
+    .brand { font-family: Georgia, serif; font-size: 1.65rem; font-weight: 700; }
+    .brand span { color: var(--terracotta); }
+    nav { display: flex; gap: 28px; align-items: center; font-size: .94rem; }
+    nav a:hover { color: var(--terracotta); }
+    .nav-cta, .button {
+      display: inline-block;
+      background: var(--terracotta);
+      color: white;
+      padding: 12px 21px;
+      border-radius: 999px;
+      font-weight: 650;
+      transition: transform .2s, background .2s;
     }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none !important; animation:none !important; } }
+    .nav-cta:hover, .button:hover { background: #a95638; transform: translateY(-2px); }
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 6% 70px;
+      display: grid;
+      grid-template-columns: 1fr 1.02fr;
+      gap: 54px;
+      align-items: center;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: .78rem;
+      font-weight: 750;
+      color: var(--terracotta);
+    }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; line-height: 1.12; }
+    h1 { font-size: clamp(3rem, 6vw, 5.4rem); margin: 16px 0 22px; letter-spacing: -.04em; }
+    h1 em { color: var(--terracotta); font-weight: 500; }
+    .hero p { max-width: 490px; color: var(--muted); font-size: 1.08rem; margin-bottom: 28px; }
+    .hero-links { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+    .text-link { font-weight: 700; border-bottom: 1px solid var(--forest); padding-bottom: 3px; }
+    .hero-image {
+      min-height: 500px;
+      border-radius: 48% 48% 18px 18px;
+      overflow: hidden;
+      position: relative;
+      background: #d7c2a7;
+    }
+    .hero-image img { width: 100%; height: 100%; min-height: 500px; object-fit: cover; display: block; }
+    .image-note {
+      position: absolute; bottom: 22px; left: 22px;
+      background: var(--white); border-radius: 14px; padding: 13px 17px;
+      box-shadow: 0 8px 28px #0002; font-size: .9rem;
+    }
+    .image-note strong { display: block; font-family: Georgia, serif; font-size: 1.05rem; }
+    .intro {
+      background: var(--sand);
+      padding: 65px 6%;
+      text-align: center;
+    }
+    .intro h2 { font-size: clamp(2.1rem, 4vw, 3.2rem); margin: 12px auto; max-width: 700px; }
+    .intro p { color: #66685d; max-width: 630px; margin: 16px auto 0; }
+    .section { max-width: 1180px; margin: auto; padding: 78px 6%; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 30px; }
+    .section-heading h2 { font-size: clamp(2.2rem, 4vw, 3.3rem); margin: 8px 0 0; }
+    .section-heading p { max-width: 390px; color: var(--muted); margin: 0; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .menu-card { background: var(--white); border-radius: 18px; overflow: hidden; }
+    .menu-card img { width: 100%; height: 220px; display: block; object-fit: cover; }
+    .menu-content { padding: 20px; }
+    .menu-title { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .menu-title h3 { margin: 0; font-size: 1.35rem; }
+    .price { color: var(--terracotta); font-weight: 800; white-space: nowrap; }
+    .menu-content p { margin: 9px 0 0; color: var(--muted); font-size: .94rem; }
+    .feature {
+      background: var(--forest); color: #f8f2e8;
+      display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 45px;
+      padding: 64px max(6%, calc((100% - 1060px)/2));
+    }
+    .feature img { width: 100%; height: 360px; object-fit: cover; border-radius: 18px; }
+    .feature h2 { font-size: clamp(2.4rem, 4vw, 3.7rem); margin: 13px 0 20px; }
+    .feature p { color: #d8ddcf; }
+    .feature .eyebrow { color: #e8a487; }
+    .feature .button { background: #e8a487; color: #292d25; margin-top: 10px; }
+    .visit { text-align: center; padding: 76px 6%; }
+    .visit h2 { font-size: clamp(2.3rem, 4vw, 3.4rem); margin: 10px 0 14px; }
+    .visit p { color: var(--muted); margin: 0 auto 25px; max-width: 540px; }
+    footer { background: #222a21; color: #e8e4d9; padding: 26px 6%; }
+    .footer-inner { max-width: 1060px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+    footer small { color: #c2c5b8; }
+    @media (max-width: 780px) {
+      header { padding: 18px 5%; flex-wrap: wrap; }
+      nav { width: 100%; justify-content: space-between; gap: 12px; font-size: .88rem; }
+      .nav-cta { padding: 9px 14px; }
+      .hero { grid-template-columns: 1fr; padding: 22px 5% 50px; gap: 32px; }
+      .hero-image, .hero-image img { min-height: 360px; }
+      .section { padding: 56px 5%; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .menu-card img { height: 250px; }
+      .feature { grid-template-columns: 1fr; padding: 52px 5%; gap: 28px; }
+      .feature img { height: 270px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="wrap nav">
-      <a class="brand" href="#home" aria-label="CloudForge home"><span class="brand-mark">CF</span><span>CloudForge<span class="gradient">.</span></span></a>
-      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
-        <a href="#services">What we do</a>
-        <a href="#gallery">Inside the cloud</a>
-        <a href="#workflow">Workflow</a>
-      </nav>
-      <div class="nav-actions">
-        <button class="btn menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks">☰ Menu</button>
-        <a class="btn nav-cta" href="#workflow">Explore pipeline ↗</a>
-      </div>
-    </div>
+  <div class="topbar">GOOD COFFEE · FRESHLY BAKED · ALWAYS WELCOME</div>
+  <header>
+    <a class="brand" href="#home" aria-label="Little Fern Café home">little fern<span>.</span></a>
+    <nav aria-label="Main navigation">
+      <a href="#story">Our story</a>
+      <a href="#menu">Menu</a>
+      <a href="#visit">Find us</a>
+      <a class="nav-cta" href="#menu">Explore menu</a>
+    </nav>
   </header>
 
-  <main id="home">
-    <section class="hero">
-      <div class="wrap hero-grid">
+  <main>
+    <section class="hero" id="home">
+      <div>
+        <div class="eyebrow">Your little corner of calm</div>
+        <h1>Slow mornings.<br><em>Better coffee.</em></h1>
+        <p>A neighbourhood café for your first coffee, long conversations, and those little moments that make a day feel special.</p>
+        <div class="hero-links">
+          <a class="button" href="#menu">Discover our menu</a>
+          <a class="text-link" href="#story">Get to know us ↗</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=85" alt="Warm, inviting café interior with tables and coffee" />
+        <div class="image-note"><strong>Made with a little love</strong>Freshly brewed, every day ☕</div>
+      </div>
+    </section>
+
+    <section class="intro" id="story">
+      <div class="eyebrow">A café with heart</div>
+      <h2>Come for the coffee.<br>Stay for the feeling.</h2>
+      <p>We believe the best things are simple: good beans, fresh bakes, kind people, and a cosy seat waiting just for you. Welcome to your happy place.</p>
+    </section>
+
+    <section class="section" id="menu">
+      <div class="section-heading">
         <div>
-          <div class="eyebrow"><span class="pulse"></span> CLOUD • DEVOPS • AUTOMATION</div>
-          <h1>From code<br>to <span class="gradient">cloud nine.</span></h1>
-          <p class="hero-copy">Build faster. Ship confidently. Scale smarter. Explore a modern cloud engineering playground where automation turns ideas into reliable applications.</p>
-          <div class="hero-buttons">
-            <a class="btn primary" href="#workflow">See how it works <span aria-hidden="true">→</span></a>
-            <a class="btn" href="#gallery">Explore the gallery</a>
-          </div>
-          <div class="proof">
-            <div class="avatars" aria-hidden="true">
-              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=90&q=80" alt="">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=90&q=80" alt="">
-              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=90&q=80" alt="">
-            </div>
-            <span><strong style="color:var(--text)">Made for builders</strong><br>A showcase of cloud-native thinking</span>
-          </div>
+          <div class="eyebrow">A few favourites</div>
+          <h2>Made to make you smile.</h2>
         </div>
-        <div class="hero-visual" aria-label="Cloud engineering workspace image">
-          <div class="hero-photo">
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=85" alt="Close-up of modern electronic hardware and circuit boards">
+        <p>From your everyday espresso to a sweet little treat, there’s something lovely waiting on the menu.</p>
+      </div>
+      <div class="menu-grid">
+        <article class="menu-card">
+          <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=85" alt="Freshly prepared iced coffee in a glass" loading="lazy" />
+          <div class="menu-content">
+            <div class="menu-title"><h3>Brown Sugar Latte</h3><span class="price">₹180</span></div>
+            <p>Rich espresso, silky milk, and a hint of caramel sweetness.</p>
           </div>
-          <div class="floating-card pipeline-card">
-            <div class="pipeline-title">Deployment pipeline</div>
-            <div class="pipeline-status"><span>Production</span><span class="success">● Healthy</span></div>
-            <div class="pipeline-line"><span></span></div>
-            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:.76rem;margin-top:9px"><span>Build</span><span>Test</span><span>Ship</span></div>
+        </article>
+        <article class="menu-card">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85" alt="Freshly baked golden pastries" loading="lazy" />
+          <div class="menu-content">
+            <div class="menu-title"><h3>Butter Croissant</h3><span class="price">₹140</span></div>
+            <p>Flaky, golden, buttery layers baked fresh for your morning.</p>
           </div>
-          <div class="floating-card metric-card">
-            <div class="pipeline-title">Delivery velocity</div>
-            <div class="metric-big">↑ 4.8x</div>
-            <div class="metric-caption">Illustrative project metric</div>
-            <div class="mini-bars" aria-hidden="true"><span style="height:28%"></span><span style="height:42%"></span><span style="height:35%"></span><span style="height:58%"></span><span style="height:48%"></span><span style="height:76%"></span><span style="height:100%"></span></div>
+        </article>
+        <article class="menu-card">
+          <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85" alt="Chocolate cake topped with chocolate frosting" loading="lazy" />
+          <div class="menu-content">
+            <div class="menu-title"><h3>Chocolate Cloud Cake</h3><span class="price">₹220</span></div>
+            <p>Soft, rich chocolate cake for when you need a little joy.</p>
           </div>
-        </div>
+        </article>
       </div>
     </section>
 
-    <div class="trust">
-      <div class="wrap trust-row">
-        <div class="trust-label">The cloud toolkit</div>
-        <div class="tool-logos" aria-label="Technology names">
-          <span>☁ AWS</span><span>◈ Docker</span><span>⌘ GitHub Actions</span><span>⎈ Kubernetes</span><span>▧ Terraform</span>
-        </div>
-      </div>
-    </div>
-
-    <section id="services">
-      <div class="wrap">
-        <div class="section-head">
-          <div><div class="kicker">Build with confidence</div><h2>Small steps.<br>Powerful systems.</h2></div>
-          <p>Good DevOps is more than tools. It is a repeatable path from a developer's laptop to a dependable application in the cloud.</p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature"><div class="feature-icon">⚡</div><h3>Continuous delivery</h3><p>Automate repetitive steps so every change can move through a consistent build and release process.</p></article>
-          <article class="feature"><div class="feature-icon">📦</div><h3>Container-first</h3><p>Package applications and their runtime into portable images that can run consistently across environments.</p></article>
-          <article class="feature"><div class="feature-icon">☁️</div><h3>Cloud infrastructure</h3><p>Use cloud resources thoughtfully, with clear networking, access controls, and room to scale.</p></article>
-          <article class="feature"><div class="feature-icon">🛡️</div><h3>Security by design</h3><p>Keep tokens and keys out of source code, apply least privilege, and make safe defaults part of the workflow.</p></article>
-          <article class="feature"><div class="feature-icon">📈</div><h3>Visibility & monitoring</h3><p>Use logs, metrics, and health checks to understand how an application behaves after deployment.</p></article>
-          <article class="feature"><div class="feature-icon">🔁</div><h3>Reliable releases</h3><p>Make releases repeatable and plan for health verification, rollback, and recovery when things go wrong.</p></article>
-        </div>
+    <section class="feature">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85" alt="Barista preparing a freshly brewed cup of coffee" loading="lazy" />
+      <div>
+        <div class="eyebrow">Thoughtfully brewed</div>
+        <h2>Good beans.<br>Good people.<br>Good days.</h2>
+        <p>Every cup starts with carefully chosen coffee and ends with a reason to take one more sip. Pull up a chair—we’ll put the kettle on.</p>
+        <a class="button" href="#visit">Come say hello</a>
       </div>
     </section>
 
-    <section class="gallery-section" id="gallery">
-      <div class="wrap">
-        <div class="section-head">
-          <div><div class="kicker">A visual tour</div><h2>Inside the cloud.</h2></div>
-          <p>A collection of technology, teamwork, infrastructure, and engineering imagery. Use the filters to explore each theme.</p>
-        </div>
-        <div class="filters" role="group" aria-label="Filter gallery images">
-          <button class="filter active" data-filter="all" aria-pressed="true">All photos</button>
-          <button class="filter" data-filter="hardware" aria-pressed="false">Hardware</button>
-          <button class="filter" data-filter="team" aria-pressed="false">People</button>
-          <button class="filter" data-filter="workspace" aria-pressed="false">Workspaces</button>
-        </div>
-        <div class="gallery" id="galleryGrid">
-          <article class="photo-card wide" data-category="hardware">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=85" alt="Rows of server equipment in a data center">
-            <div class="photo-caption"><strong>Infrastructure that powers the internet</strong><span>Hardware • Data centers</span></div>
-          </article>
-          <article class="photo-card" data-category="workspace">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85" alt="Laptop and code on a developer workspace">
-            <div class="photo-caption"><strong>Code into motion</strong><span>Workspace • Development</span></div>
-          </article>
-          <article class="photo-card" data-category="hardware">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=85" alt="Electronic circuit board detail">
-            <div class="photo-caption"><strong>Under the hood</strong><span>Hardware • Components</span></div>
-          </article>
-          <article class="photo-card" data-category="team">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=85" alt="Team collaborating around a table">
-            <div class="photo-caption"><strong>Better together</strong><span>People • Collaboration</span></div>
-          </article>
-          <article class="photo-card wide" data-category="workspace">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85" alt="Bright modern office workspace with desks">
-            <div class="photo-caption"><strong>Space for big ideas</strong><span>Workspace • Creative thinking</span></div>
-          </article>
-          <article class="photo-card" data-category="team">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=85" alt="Colleagues working together at a computer">
-            <div class="photo-caption"><strong>Ship as a team</strong><span>People • Teamwork</span></div>
-          </article>
-          <article class="photo-card" data-category="hardware">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=85" alt="Computer screens and technology workspace">
-            <div class="photo-caption"><strong>Tools for makers</strong><span>Hardware • Technology</span></div>
-          </article>
-          <article class="photo-card" data-category="workspace">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85" alt="Minimal contemporary office interior">
-            <div class="photo-caption"><strong>Focus on the work</strong><span>Workspace • Modern office</span></div>
-          </article>
-        </div>
-        <div class="stats">
-          <div class="stat"><strong>01</strong><span>Source repository</span></div>
-          <div class="stat"><strong>02</strong><span>Build & package</span></div>
-          <div class="stat"><strong>03</strong><span>Publish image</span></div>
-          <div class="stat"><strong>04</strong><span>Deploy to cloud</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="workflow">
-      <div class="wrap steps-grid">
-        <div class="steps-intro">
-          <div class="kicker">The delivery loop</div>
-          <h2>From commit<br>to customer.</h2>
-          <p>This is the same basic flow used in the Docker CI/CD project: push code, build an image, publish it, and deploy it to an EC2 server.</p>
-          <a class="btn primary" href="#home">Back to top ↑</a>
-        </div>
-        <div class="steps">
-          <article class="step"><div class="step-num">1</div><div><h3>Push your code</h3><p>A developer commits changes to the GitHub repository. A push to the main branch triggers the workflow.</p></div></article>
-          <article class="step"><div class="step-num">2</div><div><h3>Build the Docker image</h3><p>GitHub Actions checks out the code and builds a container image using the Dockerfile.</p></div></article>
-          <article class="step"><div class="step-num">3</div><div><h3>Publish to Docker Hub</h3><p>After a successful build, the workflow authenticates using GitHub Secrets and pushes the image to the registry.</p></div></article>
-          <article class="step"><div class="step-num">4</div><div><h3>Deploy on EC2</h3><p>The workflow connects to the server, pulls the image, starts the container, and makes the website available over HTTP.</p></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="cta">
-      <div class="wrap">
-        <div class="cta-box">
-          <div><div class="kicker">Your next deployment starts here</div><h2>Make every commit count.</h2><p>Build it. Containerize it. Automate it. Keep improving it.</p></div>
-          <a class="btn primary" href="#workflow">Review the workflow ↗</a>
-        </div>
-      </div>
+    <section class="visit" id="visit">
+      <div class="eyebrow">Your table is waiting</div>
+      <h2>Meet you over coffee?</h2>
+      <p>Drop by for a quick takeaway or make yourself comfortable for a while. We’re always happy to see you.</p>
+      <a class="button" href="mailto:hello@littleferncafe.example">Say hello ✉</a>
     </section>
   </main>
 
   <footer>
-    <div class="wrap footer-row">
-      <a class="brand" href="#home"><span class="brand-mark">CF</span><span>CloudForge<span class="gradient">.</span></span></a>
-      <span>Demo landing page • Built with HTML, CSS & vanilla JavaScript</span>
-      <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+    <div class="footer-inner">
+      <a class="brand" href="#home">little fern<span>.</span></a>
+      <small>© <span id="year"></span> Little Fern Café · Made for good moments.</small>
+      <small>Mon–Sun · 8:00 AM – 9:00 PM</small>
     </div>
   </footer>
-  <div class="toast" id="toast" role="status" aria-live="polite">You're exploring CloudForge ✨</div>
-
   <script>
-    (function () {
-      const menuToggle = document.getElementById('menuToggle');
-      const navLinks = document.getElementById('navLinks');
-      const filters = Array.from(document.querySelectorAll('.filter'));
-      const cards = Array.from(document.querySelectorAll('.photo-card'));
-      const toast = document.getElementById('toast');
-      let toastTimer;
-
-      menuToggle.addEventListener('click', function () {
-        const isOpen = navLinks.classList.toggle('open');
-        menuToggle.setAttribute('aria-expanded', String(isOpen));
-        menuToggle.textContent = isOpen ? '✕ Close' : '☰ Menu';
-      });
-
-      navLinks.querySelectorAll('a').forEach(function (link) {
-        link.addEventListener('click', function () {
-          navLinks.classList.remove('open');
-          menuToggle.setAttribute('aria-expanded', 'false');
-          menuToggle.textContent = '☰ Menu';
-        });
-      });
-
-      filters.forEach(function (button) {
-        button.addEventListener('click', function () {
-          const filter = button.dataset.filter;
-          filters.forEach(function (item) {
-            const active = item === button;
-            item.classList.toggle('active', active);
-            item.setAttribute('aria-pressed', String(active));
-          });
-          cards.forEach(function (card) {
-            card.classList.toggle('hidden', filter !== 'all' && card.dataset.category !== filter);
-          });
-        });
-      });
-
-      function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        window.clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(function () {
-          toast.classList.remove('show');
-        }, 2300);
-      }
-
-      document.querySelectorAll('a[href^="#"]').forEach(function (link) {
-        link.addEventListener('click', function () {
-          if (link.getAttribute('href') !== '#home') {
-            showToast('Jumping to ' + (link.textContent.trim() || 'section') + ' ✨');
-          }
-        });
-      });
-
-      document.getElementById('toTop').addEventListener('click', function () {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('Back to the top!');
-      });
-    })();
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
