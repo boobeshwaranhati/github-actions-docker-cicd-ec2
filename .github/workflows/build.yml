@@ -16,7 +16,7 @@ jobs:
 
       - name: Generate Tag
         id: tag
-        run: echo "tag=build-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build and Push
         env:
@@ -50,6 +50,7 @@ jobs:
             if ! command -v docker >/dev/null 2>&1; then
               sudo yum install -y docker
             fi
+
             sudo systemctl enable --now docker
 
             if ! sudo docker compose version >/dev/null 2>&1; then
