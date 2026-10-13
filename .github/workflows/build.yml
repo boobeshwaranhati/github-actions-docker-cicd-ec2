@@ -10,21 +10,26 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Generate Tag
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Generate Dynamic Image Tag
         id: tag
         run: echo "tag=build-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-buildx-action@v3
-      
-      - uses: docker/login-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v6
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -32,7 +37,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - uses: appleboy/scp-action@v0.1.7
+      - name: Copy Docker Compose File to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
@@ -40,7 +46,8 @@ jobs:
           source: docker-compose.yml
           target: /home/ec2-user/website/
 
-      - uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy to EC2 via Docker Compose
+        uses: appleboy/ssh-action@v1.2.0
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         with:
@@ -51,5 +58,5 @@ jobs:
           script: |
             cd /home/ec2-user/website
             export IMAGE_TAG="$TAG"
-            sudo -E docker compose pull
-            sudo -E docker compose up -d --remove-orphans
+            sudo -E docker compose pull app
+            sudo -E docker compose up -d --remove-orphans app
