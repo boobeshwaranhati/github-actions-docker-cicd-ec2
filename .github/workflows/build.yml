@@ -36,35 +36,13 @@ jobs:
       - uses: appleboy/ssh-action@v1.2.0
         env:
           TAG: build-${{ github.run_number }}
-          DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: TAG,DOCKER_USER,DOCKER_TOKEN
+          envs: TAG
           script: |
-            if ! command -v docker >/dev/null 2>&1; then
-              sudo yum install -y docker
-            fi
-
-            sudo systemctl enable --now docker
-
-            if ! sudo docker compose version >/dev/null 2>&1; then
-              sudo mkdir -p /usr/local/lib/docker/cli-plugins
-              sudo curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
-                -o /usr/local/lib/docker/cli-plugins/docker-compose
-              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-            fi
-
-            mkdir -p /home/ec2-user/website
             cd /home/ec2-user/website
-
-            echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin
-
             export IMAGE_TAG="$TAG"
-
             sudo --preserve-env=IMAGE_TAG docker compose pull
             sudo --preserve-env=IMAGE_TAG docker compose up -d --remove-orphans
-
-            sudo docker logout
