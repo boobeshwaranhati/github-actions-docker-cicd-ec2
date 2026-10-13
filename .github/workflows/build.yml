@@ -8,13 +8,15 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Generate Tag
+        id: tag
+        run: echo "tag=build-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/login-action@v3
         with:
@@ -26,8 +28,6 @@ jobs:
           context: .
           push: true
           tags: boobesh2005/github-actions-docker-cicd-ec2:build-${{ github.run_number }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=min
 
       - uses: appleboy/scp-action@v0.1.7
         with:
@@ -45,7 +45,15 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: TAG
+          command_timeout: 5m
           script: |
+            if ! command -v docker >/dev/null 2>&1; then sudo yum install -y docker; fi
+            sudo systemctl enable --now docker
+            if ! sudo docker compose version >/dev/null 2>&1; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
             cd /home/ec2-user/website
             export IMAGE_TAG="$TAG"
             sudo --preserve-env=IMAGE_TAG docker compose pull
