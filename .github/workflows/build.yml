@@ -14,18 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: docker/setup-buildx-action@v3
+
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v6
+      - name: Build and Push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: boobesh2005/github-actions-docker-cicd-ec2:build-${{ github.run_number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
 
-      - uses: appleboy/scp-action@v0.1.7
+      - name: Copy Compose File
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
@@ -33,20 +39,23 @@ jobs:
           source: docker-compose.yml
           target: /home/ec2-user/website/
 
-      - uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
         env:
           TAG: build-${{ github.run_number }}
+          DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: TAG
+          envs: TAG,DOCKER_USER,DOCKER_TOKEN
           script: |
             if ! command -v docker >/dev/null 2>&1; then
               sudo yum install -y docker
             fi
 
-            sudo systemctl enable --now docker
+            sudo systemctl start docker
 
             if ! sudo docker compose version >/dev/null 2>&1; then
               sudo mkdir -p /usr/local/lib/docker/cli-plugins
@@ -61,5 +70,9 @@ jobs:
             cd /home/ec2-user/website
             export IMAGE_TAG="$TAG"
 
+            echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USER" --password-stdin
+
             sudo --preserve-env=IMAGE_TAG docker compose pull
             sudo --preserve-env=IMAGE_TAG docker compose up -d --remove-orphans
+
+            sudo docker logout
