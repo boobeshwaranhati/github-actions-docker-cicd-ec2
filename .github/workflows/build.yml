@@ -7,37 +7,40 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE: boobesh2005/github-actions-docker-cicd-ec2
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Generate Dynamic Image Tag
+      - name: Generate Tag
         id: tag
         run: echo "tag=build-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: boobesh2005/github-actions-docker-cicd-ec2:${{ steps.tag.outputs.tag }}
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Copy Docker Compose File to EC2
+      - name: Copy compose file to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -46,17 +49,17 @@ jobs:
           source: docker-compose.yml
           target: /home/ec2-user/website/
 
-      - name: Deploy to EC2 via Docker Compose
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.2.0
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: TAG
+          script_stop: true
           script: |
+            set -e
             cd /home/ec2-user/website
-            export IMAGE_TAG="$TAG"
-            sudo -E docker compose pull app
-            sudo -E docker compose up -d --remove-orphans app
+            echo "IMAGE_TAG=${{ steps.tag.outputs.tag }}" > .env
+            sudo docker compose pull
+            sudo docker compose up -d --remove-orphans
+            sudo docker image prune -f
