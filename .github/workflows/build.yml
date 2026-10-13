@@ -14,6 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate Tag
+        id: tag
+        run: echo "tag=build-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -21,15 +25,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v6
+      - name: Build and Push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: boobesh2005/github-actions-docker-cicd-ec2:build-${{ github.run_number }}
+          tags: boobesh2005/github-actions-docker-cicd-ec2:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - uses: appleboy/scp-action@v0.1.7
+      - name: Copy Compose File
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
@@ -37,15 +43,28 @@ jobs:
           source: docker-compose.yml
           target: /home/ec2-user/website/
 
-      - uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
         env:
-          TAG: build-${{ github.run_number }}
+          TAG: ${{ steps.tag.outputs.tag }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: TAG
           script: |
+            if ! command -v docker >/dev/null 2>&1; then
+              sudo yum install -y docker
+            fi
+
+            sudo systemctl enable --now docker
+
+            if ! sudo docker compose version >/dev/null 2>&1; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+
             cd /home/ec2-user/website
             export IMAGE_TAG="$TAG"
             sudo --preserve-env=IMAGE_TAG docker compose pull
