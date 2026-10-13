@@ -42,7 +42,24 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: TAG
           script: |
+            if ! command -v docker >/dev/null 2>&1; then
+              sudo yum install -y docker
+            fi
+
+            sudo systemctl enable --now docker
+
+            if ! sudo docker compose version >/dev/null 2>&1; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+                -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+
+            sudo mkdir -p /home/ec2-user/website
+            sudo chown ec2-user:ec2-user /home/ec2-user/website
+
             cd /home/ec2-user/website
             export IMAGE_TAG="$TAG"
+
             sudo --preserve-env=IMAGE_TAG docker compose pull
             sudo --preserve-env=IMAGE_TAG docker compose up -d --remove-orphans
