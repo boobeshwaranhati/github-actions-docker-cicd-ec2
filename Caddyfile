@@ -1,0 +1,3 @@
+boobeshwaran.pranat.online {
+    reverse_proxy website:80
+}
